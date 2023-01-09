@@ -1,0 +1,164 @@
+{
+	"name": "df_scd2",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_scd2_dept",
+						"type": "DatasetReference"
+					},
+					"name": "souce1Deptcsv"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_scd2_sql",
+						"type": "DatasetReference"
+					},
+					"name": "source2Sql",
+					"description": "source2 = sinkSql"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_scd2_sql",
+						"type": "DatasetReference"
+					},
+					"name": "sinkSql"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_scd2_sql",
+						"type": "DatasetReference"
+					},
+					"name": "sinkNewSql"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumnDeptcsv",
+					"description": "Adding IsActive=1 column to the source csv"
+				},
+				{
+					"name": "select1Sql",
+					"description": "Renaming the columns for better understanding while Lookup"
+				},
+				{
+					"name": "lookup2",
+					"description": "Lookup on 'select1Sql' on DeptID=SQL_DeptID like inner join"
+				},
+				{
+					"name": "filter1",
+					"description": "Filtering the pre-existing same DeptID column in the sql table to put IsActive = 0"
+				},
+				{
+					"name": "alterRow1",
+					"description": "Updateing rows to sql table"
+				},
+				{
+					"name": "select1",
+					"description": "Selecting required columns"
+				},
+				{
+					"name": "derivedColumn1",
+					"description": "Adding IsActive = 0 column in table"
+				},
+				{
+					"name": "alterRow2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          DeptId as integer,",
+				"          DeptName as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> souce1Deptcsv",
+				"source(output(",
+				"          Surrogate_key as integer,",
+				"          DeptID as integer,",
+				"          Name as string,",
+				"          IsActive as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source2Sql",
+				"souce1Deptcsv derive(IsActive = 1) ~> derivedColumnDeptcsv",
+				"source2Sql select(mapColumn(",
+				"          SQL_Surrogate_key = Surrogate_key,",
+				"          SQL_DeptID = DeptID,",
+				"          SQL_Name = Name,",
+				"          SQL_IsActive = IsActive",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1Sql",
+				"souce1Deptcsv, select1Sql lookup(DeptId == SQL_DeptID,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup2",
+				"lookup2 filter(!isNull(SQL_DeptID)) ~> filter1",
+				"filter1 alterRow(updateIf(1==1)) ~> alterRow1",
+				"alterRow1 select(mapColumn(",
+				"          SQL_Surrogate_key,",
+				"          SQL_DeptID,",
+				"          SQL_Name,",
+				"          SQL_IsActive",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 derive(SQL_IsActive = 0) ~> derivedColumn1",
+				"derivedColumn1 alterRow(updateIf(1==1)) ~> alterRow2",
+				"derivedColumnDeptcsv sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Surrogate_key as integer,",
+				"          DeptID as integer,",
+				"          Name as string,",
+				"          IsActive as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 2,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          DeptID = DeptId,",
+				"          Name = DeptName,",
+				"          IsActive",
+				"     )) ~> sinkSql",
+				"alterRow2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Surrogate_key as integer,",
+				"          DeptID as integer,",
+				"          Name as string,",
+				"          IsActive as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:true,",
+				"     upsertable:false,",
+				"     keys:['Surrogate_key'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          Surrogate_key = SQL_Surrogate_key,",
+				"          DeptID = SQL_DeptID,",
+				"          Name = SQL_Name,",
+				"          IsActive = SQL_IsActive",
+				"     )) ~> sinkNewSql"
+			]
+		}
+	}
+}

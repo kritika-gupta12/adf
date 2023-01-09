@@ -1,0 +1,44 @@
+{
+	"name": "ds_scd_type2_new_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "NAME",
+				"type": "varchar"
+			},
+			{
+				"name": "CITY",
+				"type": "varchar"
+			},
+			{
+				"name": "Start_date",
+				"type": "date"
+			},
+			{
+				"name": "End_date",
+				"type": "date"
+			},
+			{
+				"name": "isActive",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "scd2_new"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

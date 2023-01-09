@@ -1,0 +1,249 @@
+{
+	"name": "df_scd_type2_trial",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_scd2_source",
+						"type": "DatasetReference"
+					},
+					"name": "source1csv"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_scd2_new_sql",
+						"type": "DatasetReference"
+					},
+					"name": "source2sql"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_scd2_new_sql",
+						"type": "DatasetReference"
+					},
+					"name": "source3MaxKey"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_scd2_new_sql",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_scd2_new_sql",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_scd2_new_sql",
+						"type": "DatasetReference"
+					},
+					"name": "sink3"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1Sql"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "lookup1"
+				},
+				{
+					"name": "select2Max"
+				},
+				{
+					"name": "split1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "derivedColumn3"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "alterRow1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          EmpNo as string,",
+				"          EmpName as string,",
+				"          Department as string,",
+				"          City as string,",
+				"          LastModified_Date as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1csv",
+				"source(output(",
+				"          Emp_SID as integer,",
+				"          Emp_No as string,",
+				"          Emp_Name as string,",
+				"          Department as string,",
+				"          City as string,",
+				"          LastUpdated_Date as string,",
+				"          is_Active as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source2sql",
+				"source(output(",
+				"          Emp_SID as integer,",
+				"          Emp_No as string,",
+				"          Emp_Name as string,",
+				"          Department as string,",
+				"          City as string,",
+				"          LastUpdated_Date as string,",
+				"          is_Active as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT MAX([Emp_SID]) as MaxKey FROM scd2',",
+				"     format: 'query') ~> source3MaxKey",
+				"source2sql select(mapColumn(",
+				"          sqlEmp_SID = Emp_SID,",
+				"          sqlEmp_No = Emp_No,",
+				"          sqlEmp_Name = Emp_Name,",
+				"          sqlDepartment = Department,",
+				"          sqlCity = City,",
+				"          sqlLastUpdated_Date = LastUpdated_Date,",
+				"          sqlis_Active = is_Active",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1Sql",
+				"source1csv, select2Max join(1 == 1,",
+				"     joinType:'cross',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1, select1Sql lookup(EmpNo == sqlEmp_No,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup1",
+				"source3MaxKey select(mapColumn(",
+				"          maxEmp_SID = Emp_SID,",
+				"          maxEmp_No = Emp_No,",
+				"          maxEmp_Name = Emp_Name,",
+				"          maxDepartment = Department,",
+				"          maxCity = City,",
+				"          maxLastUpdated_Date = LastUpdated_Date,",
+				"          maxis_Active = is_Active",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2Max",
+				"lookup1 split(isNull(sqlEmp_No),",
+				"     disjoint: false) ~> split1@(New, Old)",
+				"split1@New derive(isActive = 1) ~> derivedColumn1",
+				"split1@Old derive(isActive = 1) ~> derivedColumn2",
+				"split1@Old derive(isActivezero = 0) ~> derivedColumn3",
+				"derivedColumn3 filter(sqlEmp_SID <= maxEmp_SID) ~> filter1",
+				"filter1 alterRow(updateIf(sqlEmp_SID<=maxEmp_SID)) ~> alterRow1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Emp_SID as integer,",
+				"          Emp_No as string,",
+				"          Emp_Name as string,",
+				"          Department as string,",
+				"          City as string,",
+				"          LastUpdated_Date as string,",
+				"          is_Active as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          Emp_No = EmpNo,",
+				"          Emp_Name = EmpName,",
+				"          Department,",
+				"          City,",
+				"          LastUpdated_Date = LastModified_Date,",
+				"          is_Active = isActive",
+				"     )) ~> sink1",
+				"derivedColumn2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Emp_SID as integer,",
+				"          Emp_No as string,",
+				"          Emp_Name as string,",
+				"          Department as string,",
+				"          City as string,",
+				"          LastUpdated_Date as string,",
+				"          is_Active as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 3,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          Emp_No = EmpNo,",
+				"          Emp_Name = EmpName,",
+				"          Department,",
+				"          City,",
+				"          LastUpdated_Date = LastModified_Date,",
+				"          is_Active = isActive",
+				"     )) ~> sink2",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Emp_SID as integer,",
+				"          Emp_No as string,",
+				"          Emp_Name as string,",
+				"          Department as string,",
+				"          City as string,",
+				"          LastUpdated_Date as string,",
+				"          is_Active as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:true,",
+				"     upsertable:false,",
+				"     keys:['Emp_SID'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 2,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          Emp_No = EmpNo,",
+				"          Emp_Name = EmpName,",
+				"          Department,",
+				"          City,",
+				"          LastUpdated_Date = LastModified_Date,",
+				"          is_Active = isActivezero,",
+				"          Emp_SID = sqlEmp_SID",
+				"     )) ~> sink3"
+			]
+		}
+	}
+}

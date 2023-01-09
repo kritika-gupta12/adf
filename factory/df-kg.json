@@ -1,0 +1,9 @@
+{
+	"name": "df-kg",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "6c555af1-cf39-4c4c-b851-b48166c6bc38",
+		"tenantId": "ab52d4e5-9cc7-437a-bdda-f4239e145187"
+	}
+}

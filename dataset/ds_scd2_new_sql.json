@@ -1,0 +1,47 @@
+{
+	"name": "ds_scd2_new_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Emp_SID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Emp_No",
+				"type": "varchar"
+			},
+			{
+				"name": "Emp_Name",
+				"type": "varchar"
+			},
+			{
+				"name": "Department",
+				"type": "varchar"
+			},
+			{
+				"name": "City",
+				"type": "varchar"
+			},
+			{
+				"name": "LastUpdated_Date",
+				"type": "varchar"
+			},
+			{
+				"name": "is_Active",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "scd2"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
