@@ -1,0 +1,80 @@
+{
+	"name": "df_iot",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_iot_raw",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "sort1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "aggregate1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          messageId as integer,",
+				"          deviceId as string,",
+				"          temperature as double,",
+				"          humidity as double,",
+				"          EventProcessedUtcTime as string,",
+				"          PartitionId as integer,",
+				"          EventEnqueuedUtcTime as string,",
+				"          IoTHub as (MessageId as string, CorrelationId as string, ConnectionDeviceId as string, ConnectionDeviceGenerationId as string, EnqueuedTime as string)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'documentPerLine') ~> source1",
+				"source1 select(mapColumn(",
+				"          messageId,",
+				"          deviceId,",
+				"          temperature,",
+				"          humidity,",
+				"          EventProcessedUtcTime,",
+				"          PartitionId,",
+				"          EventEnqueuedUtcTime,",
+				"          ConnectionDeviceId = IoTHub.ConnectionDeviceId",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sort(desc(temperature, true)) ~> sort1",
+				"sort1 derive(Date_processed = left(EventProcessedUtcTime,10)) ~> derivedColumn1",
+				"derivedColumn1 select(mapColumn(",
+				"          messageId,",
+				"          deviceId,",
+				"          Date_processed,",
+				"          temperature,",
+				"          humidity,",
+				"          PartitionId,",
+				"          EventEnqueuedUtcTime,",
+				"          ConnectionDeviceId",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select2 aggregate(groupBy(Date_processed),",
+				"     temperature = sum(temperature),",
+				"          humidity = sum(humidity)) ~> aggregate1"
+			]
+		}
+	}
+}
