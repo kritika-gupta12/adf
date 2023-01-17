@@ -1,0 +1,48 @@
+{
+	"name": "ds_iot_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "messageId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "deviceId",
+				"type": "varchar"
+			},
+			{
+				"name": "temperature",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "humidity",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "EventProcessedUtcTime",
+				"type": "varchar"
+			},
+			{
+				"name": "PartitionId",
+				"type": "varchar"
+			},
+			{
+				"name": "EventEnqueuedUtcTime",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "iotdata"
+		}
+	}
+}

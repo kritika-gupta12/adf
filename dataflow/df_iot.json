@@ -15,7 +15,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "ds_scd2_sql",
+						"referenceName": "ds_iot_sql",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
@@ -27,9 +27,6 @@
 				},
 				{
 					"name": "derivedColumn1"
-				},
-				{
-					"name": "select2"
 				}
 			],
 			"scriptLines": [
@@ -54,31 +51,24 @@
 				"          humidity,",
 				"          EventProcessedUtcTime,",
 				"          PartitionId,",
-				"          EventEnqueuedUtcTime,",
-				"          ConnectionDeviceId = IoTHub.ConnectionDeviceId",
+				"          EventEnqueuedUtcTime",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
-				"select1 derive(Date_processed = left(EventProcessedUtcTime,10)) ~> derivedColumn1",
-				"derivedColumn1 select(mapColumn(",
-				"          messageId,",
-				"          deviceId,",
-				"          Date_processed,",
-				"          temperature,",
-				"          humidity,",
-				"          PartitionId,",
-				"          EventEnqueuedUtcTime,",
-				"          ConnectionDeviceId",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select2",
-				"select2 sink(allowSchemaDrift: true,",
+				"select1 derive(EventProcessedUtcTime = left(EventProcessedUtcTime,16),",
+				"          temperature = round(temperature,3),",
+				"          humidity = round(humidity,3),",
+				"          EventEnqueuedUtcTime = left(EventEnqueuedUtcTime,16)) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
-				"          Surrogate_key as integer,",
-				"          DeptID as integer,",
-				"          Name as string,",
-				"          IsActive as integer",
+				"          messageId as integer,",
+				"          deviceId as string,",
+				"          temperature as double,",
+				"          humidity as double,",
+				"          EventProcessedUtcTime as string,",
+				"          PartitionId as string,",
+				"          EventEnqueuedUtcTime as string",
 				"     ),",
 				"     deletable:false,",
 				"     insertable:true,",
@@ -87,7 +77,17 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+				"     saveOrder: 1,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          messageId,",
+				"          deviceId,",
+				"          temperature,",
+				"          humidity,",
+				"          EventProcessedUtcTime,",
+				"          PartitionId,",
+				"          EventEnqueuedUtcTime",
+				"     )) ~> sink1"
 			]
 		}
 	}

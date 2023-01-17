@@ -9,7 +9,9 @@
 		"type": "Json",
 		"typeProperties": {
 			"location": {
-				"type": "AzureBlobFSLocation"
+				"type": "AzureBlobFSLocation",
+				"fileName": "0_0970cb32ebaa43a599143d561cab1254_1.json",
+				"fileSystem": "data"
 			}
 		},
 		"schema": {

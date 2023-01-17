@@ -1,0 +1,180 @@
+{
+	"name": "pl_iot",
+	"properties": {
+		"activities": [
+			{
+				"name": "Data flow1",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_iot",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Data flow1",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "messageId",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "messageId",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "deviceId",
+									"type": "String",
+									"physicalType": "varchar"
+								},
+								"sink": {
+									"name": "deviceId",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "temperature",
+									"type": "Double",
+									"physicalType": "float"
+								},
+								"sink": {
+									"name": "temperature",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "humidity",
+									"type": "Double",
+									"physicalType": "float"
+								},
+								"sink": {
+									"name": "humidity",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "EventProcessedUtcTime",
+									"type": "String",
+									"physicalType": "varchar"
+								},
+								"sink": {
+									"name": "EventProcessedUtcTime",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "PartitionId",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "PartitionId",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "EventEnqueuedUtcTime",
+									"type": "String",
+									"physicalType": "varchar"
+								},
+								"sink": {
+									"name": "EventEnqueuedUtcTime",
+									"type": "String",
+									"physicalType": "String"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_iot_sql",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_iot_processed",
+						"type": "DatasetReference",
+						"parameters": {
+							"filename": "@concat(formatDateTime(utcNow(),'yyyy'),'/',formatDateTime(utcNow(),'MM'),'/',formatDateTime(utcNow(),'dd'),'.csv')"
+						}
+					}
+				]
+			}
+		],
+		"annotations": []
+	}
+}
