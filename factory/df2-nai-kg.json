@@ -1,0 +1,9 @@
+{
+	"name": "df2-nai-kg",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "96270a13-eb7c-4b1f-97dd-12cd458253f8",
+		"tenantId": "e525031f-bb1f-4659-aa0e-c0f3fbfa832f"
+	}
+}
