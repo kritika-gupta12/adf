@@ -1,5 +1,5 @@
 {
-	"name": "df_scd_type2_new",
+	"name": "df_scd_type2_hex",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {

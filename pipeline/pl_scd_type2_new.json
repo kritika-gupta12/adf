@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "df_scd_type2_new",
+						"referenceName": "df_scd_type2_hex",
 						"type": "DataFlowReference"
 					},
 					"compute": {

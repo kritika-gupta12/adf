@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "df_scd2",
+						"referenceName": "df_scd_type2",
 						"type": "DataFlowReference"
 					},
 					"compute": {
