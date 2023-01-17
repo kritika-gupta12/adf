@@ -26,16 +26,10 @@
 					"name": "select1"
 				},
 				{
-					"name": "sort1"
-				},
-				{
 					"name": "derivedColumn1"
 				},
 				{
 					"name": "select2"
-				},
-				{
-					"name": "aggregate1"
 				}
 			],
 			"scriptLines": [
@@ -65,8 +59,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
-				"select1 sort(desc(temperature, true)) ~> sort1",
-				"sort1 derive(Date_processed = left(EventProcessedUtcTime,10)) ~> derivedColumn1",
+				"select1 derive(Date_processed = left(EventProcessedUtcTime,10)) ~> derivedColumn1",
 				"derivedColumn1 select(mapColumn(",
 				"          messageId,",
 				"          deviceId,",
@@ -79,10 +72,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select2",
-				"select2 aggregate(groupBy(Date_processed),",
-				"     temperature = sum(temperature),",
-				"          humidity = sum(humidity)) ~> aggregate1",
-				"aggregate1 sink(allowSchemaDrift: true,",
+				"select2 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          Surrogate_key as integer,",

@@ -1,10 +1,6 @@
 {
 	"name": "ds_incremental_load_old_files",
 	"properties": {
-		"linkedServiceName": {
-			"referenceName": "ls_deepansh_strg",
-			"type": "LinkedServiceReference"
-		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
