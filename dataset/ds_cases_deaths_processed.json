@@ -10,8 +10,8 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "cleansed",
-				"fileSystem": "covid-ecdc"
+				"folderPath": "covid/processed",
+				"fileSystem": "kritika"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",

@@ -12,7 +12,7 @@
 				"type": "AzureBlobFSLocation",
 				"fileName": "lookup_ecdc.csv",
 				"folderPath": "lookup",
-				"fileSystem": "covid-ecdc"
+				"fileSystem": "kritika"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",

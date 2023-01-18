@@ -19,8 +19,8 @@
 					"value": "@concat(dataset().filename,'.csv')",
 					"type": "Expression"
 				},
-				"folderPath": "raw",
-				"fileSystem": "covid-ecdc"
+				"folderPath": "covid/raw",
+				"fileSystem": "kritika"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",

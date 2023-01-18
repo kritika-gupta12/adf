@@ -11,8 +11,8 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": "cases_deaths.csv",
-				"folderPath": "raw",
-				"fileSystem": "covid-ecdc"
+				"folderPath": "covid/raw",
+				"fileSystem": "kritika"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
