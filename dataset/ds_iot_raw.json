@@ -10,7 +10,10 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "0_0970cb32ebaa43a599143d561cab1254_1.json",
+				"folderPath": {
+					"value": "@concat(formatDateTime(utcNow(),'yyyy'),'/',formatDateTime(utcNow(),'MM'),'/',formatDateTime(addDays(utcNow(),0),'dd'))",
+					"type": "Expression"
+				},
 				"fileSystem": "data"
 			}
 		},
