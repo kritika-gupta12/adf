@@ -164,8 +164,8 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"folderPath": "cleansed",
-						"fileSystem": "covid-ecdc"
+						"folderPath": "covid/processed",
+						"fileSystem": "kritika"
 					},
 					"columnDelimiter": ",",
 					"escapeChar": "\\",
@@ -268,7 +268,7 @@
 						"type": "AzureBlobFSLocation",
 						"fileName": "lookup_ecdc.csv",
 						"folderPath": "lookup",
-						"fileSystem": "covid-ecdc"
+						"fileSystem": "kritika"
 					},
 					"columnDelimiter": ",",
 					"escapeChar": "\\",
@@ -398,8 +398,8 @@
 					"location": {
 						"type": "AzureBlobFSLocation",
 						"fileName": "cases_deaths.csv",
-						"folderPath": "raw",
-						"fileSystem": "covid-ecdc"
+						"folderPath": "covid/raw",
+						"fileSystem": "kritika"
 					},
 					"columnDelimiter": ",",
 					"escapeChar": "\\",
@@ -507,8 +507,8 @@
 							"value": "@concat(dataset().filename,'.csv')",
 							"type": "Expression"
 						},
-						"folderPath": "raw",
-						"fileSystem": "covid-ecdc"
+						"folderPath": "covid/raw",
+						"fileSystem": "kritika"
 					},
 					"columnDelimiter": ",",
 					"escapeChar": "\\",

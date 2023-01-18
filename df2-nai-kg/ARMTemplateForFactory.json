@@ -762,6 +762,54 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pl_iot')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_iot",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								},
+								"linkedServiceParameters": {}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/df_iot')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pl_scd_type1')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1052,8 +1100,8 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"folderPath": "cleansed",
-						"fileSystem": "covid-ecdc"
+						"folderPath": "covid/processed",
+						"fileSystem": "kritika"
 					},
 					"columnDelimiter": ",",
 					"escapeChar": "\\",
@@ -1156,7 +1204,7 @@
 						"type": "AzureBlobFSLocation",
 						"fileName": "lookup_ecdc.csv",
 						"folderPath": "lookup",
-						"fileSystem": "covid-ecdc"
+						"fileSystem": "kritika"
 					},
 					"columnDelimiter": ",",
 					"escapeChar": "\\",
@@ -1286,8 +1334,8 @@
 					"location": {
 						"type": "AzureBlobFSLocation",
 						"fileName": "cases_deaths.csv",
-						"folderPath": "raw",
-						"fileSystem": "covid-ecdc"
+						"folderPath": "covid/raw",
+						"fileSystem": "kritika"
 					},
 					"columnDelimiter": ",",
 					"escapeChar": "\\",
@@ -1395,8 +1443,8 @@
 							"value": "@concat(dataset().filename,'.csv')",
 							"type": "Expression"
 						},
-						"folderPath": "raw",
-						"fileSystem": "covid-ecdc"
+						"folderPath": "covid/raw",
+						"fileSystem": "kritika"
 					},
 					"columnDelimiter": ",",
 					"escapeChar": "\\",
@@ -1698,7 +1746,10 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "0_0970cb32ebaa43a599143d561cab1254_1.json",
+						"folderPath": {
+							"value": "@concat(formatDateTime(utcNow(),'yyyy'),'/',formatDateTime(utcNow(),'MM'),'/',formatDateTime(addDays(utcNow(),-1),'dd'))",
+							"type": "Expression"
+						},
 						"fileSystem": "data"
 					}
 				},
@@ -1754,6 +1805,59 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_iot_sql')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sql",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "messageId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "deviceId",
+						"type": "varchar"
+					},
+					{
+						"name": "temperature",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "humidity",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "EventProcessedUtcTime",
+						"type": "varchar"
+					},
+					{
+						"name": "PartitionId",
+						"type": "varchar"
+					},
+					{
+						"name": "EventEnqueuedUtcTime",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "iotdata"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sql')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_lookup_country_code')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -1769,7 +1873,7 @@
 						"type": "AzureBlobFSLocation",
 						"fileName": "lookup_country_code.csv",
 						"folderPath": "lookup",
-						"fileSystem": "covid-ecdc"
+						"fileSystem": "kritika"
 					},
 					"columnDelimiter": ",",
 					"escapeChar": "\\",
@@ -2992,7 +3096,7 @@
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     saveOrder: 1,",
+						"     saveOrder: 0,",
 						"     errorHandlingOption: 'stopOnFirstError',",
 						"     mapColumn(",
 						"          messageId,",
@@ -3002,7 +3106,8 @@
 						"          EventProcessedUtcTime,",
 						"          PartitionId,",
 						"          EventEnqueuedUtcTime",
-						"     )) ~> sink1"
+						"     ),",
+						"     partitionBy('hash', 1)) ~> sink1"
 					]
 				}
 			},
@@ -3655,295 +3760,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_scd2_source')]",
 				"[concat(variables('factoryId'), '/datasets/ds_scd2_new_sql')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_iot_sql')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_sql",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "messageId",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "deviceId",
-						"type": "varchar"
-					},
-					{
-						"name": "temperature",
-						"type": "float",
-						"precision": 15
-					},
-					{
-						"name": "humidity",
-						"type": "float",
-						"precision": 15
-					},
-					{
-						"name": "EventProcessedUtcTime",
-						"type": "varchar"
-					},
-					{
-						"name": "PartitionId",
-						"type": "varchar"
-					},
-					{
-						"name": "EventEnqueuedUtcTime",
-						"type": "varchar"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "iotdata"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_sql')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_iot')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Data flow1",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "df_iot",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"source1": {},
-									"sink1": {}
-								},
-								"linkedServiceParameters": {}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "Data flow1",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"name": "messageId",
-											"type": "Int32",
-											"physicalType": "int"
-										},
-										"sink": {
-											"name": "messageId",
-											"type": "String",
-											"physicalType": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "deviceId",
-											"type": "String",
-											"physicalType": "varchar"
-										},
-										"sink": {
-											"name": "deviceId",
-											"type": "String",
-											"physicalType": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "temperature",
-											"type": "Double",
-											"physicalType": "float"
-										},
-										"sink": {
-											"name": "temperature",
-											"type": "String",
-											"physicalType": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "humidity",
-											"type": "Double",
-											"physicalType": "float"
-										},
-										"sink": {
-											"name": "humidity",
-											"type": "String",
-											"physicalType": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "EventProcessedUtcTime",
-											"type": "String",
-											"physicalType": "varchar"
-										},
-										"sink": {
-											"name": "EventProcessedUtcTime",
-											"type": "String",
-											"physicalType": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "PartitionId",
-											"type": "Int32",
-											"physicalType": "int"
-										},
-										"sink": {
-											"name": "PartitionId",
-											"type": "String",
-											"physicalType": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "EventEnqueuedUtcTime",
-											"type": "String",
-											"physicalType": "varchar"
-										},
-										"sink": {
-											"name": "EventEnqueuedUtcTime",
-											"type": "String",
-											"physicalType": "String"
-										}
-									}
-								],
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "ds_iot_sql",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "ds_iot_processed",
-								"type": "DatasetReference",
-								"parameters": {
-									"filename": "@concat(formatDateTime(utcNow(),'yyyy'),'/',formatDateTime(utcNow(),'MM'),'/',formatDateTime(utcNow(),'dd'),'.csv')"
-								}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/df_iot')]",
-				"[concat(variables('factoryId'), '/datasets/ds_iot_sql')]",
-				"[concat(variables('factoryId'), '/datasets/ds_iot_processed')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_iot_processed')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_AzureDataLakeStorage",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"filename": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().filename",
-							"type": "Expression"
-						},
-						"folderPath": "processed_iot",
-						"fileSystem": "data"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_AzureDataLakeStorage')]"
 			]
 		}
 	]
