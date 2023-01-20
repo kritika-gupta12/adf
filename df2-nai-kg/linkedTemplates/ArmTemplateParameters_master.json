@@ -12,7 +12,7 @@
 			"value": ""
 		},
 		"ls_AzureDataLakeStorage_properties_typeProperties_url": {
-			"value": "https://stodemo2023.dfs.core.windows.net/"
+			"value": "https://strgnaimkg.dfs.core.windows.net/"
 		},
 		"ls_http_properties_typeProperties_url": {
 			"value": "https://raw.githubusercontent.com"

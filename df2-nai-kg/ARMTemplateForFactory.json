@@ -17,7 +17,7 @@
 		},
 		"ls_AzureDataLakeStorage_properties_typeProperties_url": {
 			"type": "string",
-			"defaultValue": "https://stodemo2023.dfs.core.windows.net/"
+			"defaultValue": "https://strgnaimkg.dfs.core.windows.net/"
 		},
 		"ls_http_properties_typeProperties_url": {
 			"type": "string",
@@ -787,8 +787,7 @@
 								"datasetParameters": {
 									"source1": {},
 									"sink1": {}
-								},
-								"linkedServiceParameters": {}
+								}
 							},
 							"staging": {},
 							"compute": {
@@ -1750,7 +1749,7 @@
 							"value": "@concat(formatDateTime(utcNow(),'yyyy'),'/',formatDateTime(utcNow(),'MM'),'/',formatDateTime(addDays(utcNow(),-1),'dd'))",
 							"type": "Expression"
 						},
-						"fileSystem": "data"
+						"fileSystem": "iot"
 					}
 				},
 				"schema": {

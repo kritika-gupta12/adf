@@ -30,7 +30,7 @@
 							"value": "@concat(formatDateTime(utcNow(),'yyyy'),'/',formatDateTime(utcNow(),'MM'),'/',formatDateTime(addDays(utcNow(),-1),'dd'))",
 							"type": "Expression"
 						},
-						"fileSystem": "data"
+						"fileSystem": "iot"
 					}
 				},
 				"schema": {

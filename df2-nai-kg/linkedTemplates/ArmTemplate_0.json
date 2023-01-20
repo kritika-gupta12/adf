@@ -17,7 +17,7 @@
 		},
 		"ls_AzureDataLakeStorage_properties_typeProperties_url": {
 			"type": "string",
-			"defaultValue": "https://stodemo2023.dfs.core.windows.net/"
+			"defaultValue": "https://strgnaimkg.dfs.core.windows.net/"
 		},
 		"ls_http_properties_typeProperties_url": {
 			"type": "string",
