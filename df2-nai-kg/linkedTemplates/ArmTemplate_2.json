@@ -644,7 +644,8 @@
 								"referenceName": "ds_iot_raw",
 								"type": "DatasetReference"
 							},
-							"name": "source1"
+							"name": "source1",
+							"description": "Import (current day-1) data from adls iot container"
 						}
 					],
 					"sinks": [
@@ -653,15 +654,18 @@
 								"referenceName": "ds_iot_sql",
 								"type": "DatasetReference"
 							},
-							"name": "sink1"
+							"name": "sink1",
+							"description": "Export processed data to Azure sql database "
 						}
 					],
 					"transformations": [
 						{
-							"name": "select1"
+							"name": "select1",
+							"description": "Selecting the columns 'messageId, deviceId, temperature, humidity, EventProcessedUtcTime, PartitionId, EventEnqueuedUtcTime'"
 						},
 						{
-							"name": "derivedColumn1"
+							"name": "derivedColumn1",
+							"description": "Transforming the columns 'temperature, humidity, EventProcessedUtcTime, EventEnqueuedUtcTime'"
 						}
 					],
 					"scriptLines": [
