@@ -2,7 +2,7 @@
 	"name": "ds_lookup_country_code",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "ls_AzureDataLakeStorage",
+			"referenceName": "ls_adf",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
@@ -12,7 +12,7 @@
 				"type": "AzureBlobFSLocation",
 				"fileName": "lookup_country_code.csv",
 				"folderPath": "lookup",
-				"fileSystem": "kritika"
+				"fileSystem": "covid-ecdc"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
@@ -41,5 +41,6 @@
 				"type": "String"
 			}
 		]
-	}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
 }

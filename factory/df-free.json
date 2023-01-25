@@ -1,0 +1,9 @@
+{
+	"name": "df-free",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "391c2f59-dfa7-47cc-9cba-604815a172bf",
+		"tenantId": "4a05b4b9-e2e7-48c9-bb6c-87c3d6d54390"
+	}
+}

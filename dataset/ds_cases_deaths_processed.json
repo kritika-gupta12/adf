@@ -2,7 +2,7 @@
 	"name": "ds_cases_deaths_processed",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "ls_AzureDataLakeStorage",
+			"referenceName": "ls_adf",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
@@ -10,8 +10,8 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "covid/processed",
-				"fileSystem": "kritika"
+				"folderPath": "cleansed",
+				"fileSystem": "covid-ecdc"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
@@ -19,5 +19,6 @@
 			"quoteChar": "\""
 		},
 		"schema": []
-	}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
 }

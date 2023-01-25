@@ -2,7 +2,7 @@
 	"name": "ds_ecdc_sink",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "ls_AzureDataLakeStorage",
+			"referenceName": "ls_adf",
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
@@ -19,8 +19,8 @@
 					"value": "@concat(dataset().filename,'.csv')",
 					"type": "Expression"
 				},
-				"folderPath": "covid/raw",
-				"fileSystem": "kritika"
+				"folderPath": "raw",
+				"fileSystem": "covid-ecdc"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
@@ -28,5 +28,6 @@
 			"quoteChar": "\""
 		},
 		"schema": []
-	}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
 }
