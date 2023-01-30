@@ -1,0 +1,36 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "df-free"
+		},
+		"ls_AzureDataLakeStorage_accountKey": {
+			"value": ""
+		},
+		"ls_adf_accountKey": {
+			"value": ""
+		},
+		"ls_sql_connectionString": {
+			"value": ""
+		},
+		"ls_AzureDataLakeStorage_properties_typeProperties_url": {
+			"value": "https://strgkgfree.dfs.core.windows.net/"
+		},
+		"ls_adf_properties_typeProperties_url": {
+			"value": "https://strgkgfree.dfs.core.windows.net/"
+		},
+		"ls_ecdc_http_properties_typeProperties_url": {
+			"value": "https://raw.githubusercontent.com"
+		},
+		"trigger1_properties_typeProperties_scope": {
+			"value": "/subscriptions/1759563e-3fce-461d-855e-f48e63e534a7/resourceGroups/RG-free/providers/Microsoft.Storage/storageAccounts/strgkgfree"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
