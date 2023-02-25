@@ -1,0 +1,98 @@
+{
+	"name": "df_netflix",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_netflix_csv",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_netfilx_sql",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          show_id as string,",
+				"          type as string,",
+				"          title as string,",
+				"          director as string,",
+				"          cast as string,",
+				"          country as string,",
+				"          date_added as string,",
+				"          release_year as string,",
+				"          rating as string,",
+				"          duration as string,",
+				"          listed_in as string,",
+				"          description as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"source1 select(mapColumn(",
+				"          show_id,",
+				"          type,",
+				"          title,",
+				"          director,",
+				"          country,",
+				"          date_added,",
+				"          release_year,",
+				"          rating,",
+				"          duration,",
+				"          listed_in",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          show_id as string,",
+				"          type as string,",
+				"          title as string,",
+				"          director as string,",
+				"          country as string,",
+				"          date_added as string,",
+				"          release_year as string,",
+				"          rating as string,",
+				"          duration as string,",
+				"          listed_in as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          show_id,",
+				"          type,",
+				"          title,",
+				"          director,",
+				"          country,",
+				"          date_added,",
+				"          release_year,",
+				"          rating,",
+				"          duration,",
+				"          listed_in",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

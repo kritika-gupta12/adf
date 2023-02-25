@@ -1,0 +1,57 @@
+{
+	"name": "ds_netfilx_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "show_id",
+				"type": "varchar"
+			},
+			{
+				"name": "type",
+				"type": "varchar"
+			},
+			{
+				"name": "title",
+				"type": "varchar"
+			},
+			{
+				"name": "director",
+				"type": "varchar"
+			},
+			{
+				"name": "country",
+				"type": "varchar"
+			},
+			{
+				"name": "date_added",
+				"type": "varchar"
+			},
+			{
+				"name": "release_year",
+				"type": "varchar"
+			},
+			{
+				"name": "rating",
+				"type": "varchar"
+			},
+			{
+				"name": "duration",
+				"type": "varchar"
+			},
+			{
+				"name": "listed_in",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "netflix"
+		}
+	}
+}
