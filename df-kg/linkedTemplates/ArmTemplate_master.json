@@ -11,9 +11,9 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_AzureDataLakeStorage'"
 		},
-		"ls_deepansh_strg_accountKey": {
+		"ls_adf_accountKey": {
 			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'ls_deepansh_strg'"
+			"metadata": "Secure string for 'accountKey' of 'ls_adf'"
 		},
 		"ls_sql_connectionString": {
 			"type": "secureString",
@@ -21,11 +21,15 @@
 		},
 		"ls_AzureDataLakeStorage_properties_typeProperties_url": {
 			"type": "string",
+			"defaultValue": "https://strgkgfree.dfs.core.windows.net/"
+		},
+		"ls_adf_properties_typeProperties_url": {
+			"type": "string",
 			"defaultValue": "https://strgkg.dfs.core.windows.net/"
 		},
-		"ls_deepansh_strg_properties_typeProperties_url": {
+		"ls_ecdc_http_properties_typeProperties_url": {
 			"type": "string",
-			"defaultValue": "https://strgacc119.dfs.core.windows.net/"
+			"defaultValue": "https://raw.githubusercontent.com"
 		},
 		"containerUri": {
 			"type": "string",
@@ -57,8 +61,8 @@
 					"ls_AzureDataLakeStorage_accountKey": {
 						"value": "[parameters('ls_AzureDataLakeStorage_accountKey')]"
 					},
-					"ls_deepansh_strg_accountKey": {
-						"value": "[parameters('ls_deepansh_strg_accountKey')]"
+					"ls_adf_accountKey": {
+						"value": "[parameters('ls_adf_accountKey')]"
 					},
 					"ls_sql_connectionString": {
 						"value": "[parameters('ls_sql_connectionString')]"
@@ -66,8 +70,11 @@
 					"ls_AzureDataLakeStorage_properties_typeProperties_url": {
 						"value": "[parameters('ls_AzureDataLakeStorage_properties_typeProperties_url')]"
 					},
-					"ls_deepansh_strg_properties_typeProperties_url": {
-						"value": "[parameters('ls_deepansh_strg_properties_typeProperties_url')]"
+					"ls_adf_properties_typeProperties_url": {
+						"value": "[parameters('ls_adf_properties_typeProperties_url')]"
+					},
+					"ls_ecdc_http_properties_typeProperties_url": {
+						"value": "[parameters('ls_ecdc_http_properties_typeProperties_url')]"
 					}
 				}
 			},
@@ -111,6 +118,26 @@
 			},
 			"dependsOn": [
 				"[resourceId('Microsoft.Resources/deployments', 'df-kg_ArmTemplate_1')]"
+			]
+		},
+		{
+			"name": "df-kg_ArmTemplate_3",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_3.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'df-kg_ArmTemplate_2')]"
 			]
 		}
 	]

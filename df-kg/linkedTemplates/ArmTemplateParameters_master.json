@@ -8,17 +8,20 @@
 		"ls_AzureDataLakeStorage_accountKey": {
 			"value": ""
 		},
-		"ls_deepansh_strg_accountKey": {
+		"ls_adf_accountKey": {
 			"value": ""
 		},
 		"ls_sql_connectionString": {
 			"value": ""
 		},
 		"ls_AzureDataLakeStorage_properties_typeProperties_url": {
+			"value": "https://strgkgfree.dfs.core.windows.net/"
+		},
+		"ls_adf_properties_typeProperties_url": {
 			"value": "https://strgkg.dfs.core.windows.net/"
 		},
-		"ls_deepansh_strg_properties_typeProperties_url": {
-			"value": "https://strgacc119.dfs.core.windows.net/"
+		"ls_ecdc_http_properties_typeProperties_url": {
+			"value": "https://raw.githubusercontent.com"
 		},
 		"containerUri": {
 			"value": ""
