@@ -1,5 +1,5 @@
 {
-	"name": "ds_netfilx_sql",
+	"name": "ds_netflix_curated_sql",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ls_sql",
@@ -34,7 +34,8 @@
 			},
 			{
 				"name": "release_year",
-				"type": "varchar"
+				"type": "int",
+				"precision": 10
 			},
 			{
 				"name": "rating",
@@ -51,7 +52,7 @@
 		],
 		"typeProperties": {
 			"schema": "dbo",
-			"table": "netflix_raw"
+			"table": "netflix_cleansed"
 		}
 	}
 }

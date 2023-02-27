@@ -36,6 +36,10 @@
 				"type": "String"
 			},
 			{
+				"name": "cast",
+				"type": "String"
+			},
+			{
 				"name": "country",
 				"type": "String"
 			},
@@ -57,6 +61,10 @@
 			},
 			{
 				"name": "listed_in",
+				"type": "String"
+			},
+			{
+				"name": "description",
 				"type": "String"
 			}
 		]
