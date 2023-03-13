@@ -164,32 +164,6 @@
 				}
 			}
 		],
-		"parameters": {
-			"finalTableName": {
-				"type": "string",
-				"defaultValue": "Student_dest"
-			},
-			"srcTableName": {
-				"type": "string",
-				"defaultValue": "Student_src"
-			},
-			"waterMarkCo": {
-				"type": "string",
-				"defaultValue": "updateDate"
-			},
-			"stgTableName": {
-				"type": "string",
-				"defaultValue": "stgStudent"
-			},
-			"storedProcUpsert": {
-				"type": "string",
-				"defaultValue": "usp_upsert_Student"
-			},
-			"storedProcWaterMark": {
-				"type": "string",
-				"defaultValue": "usp_update_WaterMark"
-			}
-		},
 		"annotations": []
 	}
 }
