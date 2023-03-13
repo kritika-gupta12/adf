@@ -2,7 +2,7 @@
 	"name": "ds_incremental_load_new_files",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "ls_AzureDataLakeStorage",
+			"referenceName": "ls_adf",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
