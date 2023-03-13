@@ -2,7 +2,7 @@
 	"name": "ds_incremental_load_old_files",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "ls_AzureDataLakeStorage",
+			"referenceName": "ls_adf",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
@@ -10,8 +10,8 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "raw",
-				"fileSystem": "cntnr"
+				"folderPath": "raw/2023/03",
+				"fileSystem": "anomaly"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",

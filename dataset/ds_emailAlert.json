@@ -1,5 +1,5 @@
 {
-	"name": "ds_failed",
+	"name": "ds_emailAlert",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ls_adf",
