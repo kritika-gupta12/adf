@@ -11,7 +11,7 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": {
-					"value": "@CONCAT('incremental_',pipeline().RunId,'.txt')",
+					"value": "@concat('incremental-',pipeline().RunId,'.txt')",
 					"type": "Expression"
 				},
 				"fileSystem": "incremental-load"
