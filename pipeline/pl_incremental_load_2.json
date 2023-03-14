@@ -80,7 +80,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "select * from Student_src \nwhere updateDate > @{activity('LkpOldWaterMark').output.firstRow.waterMarkVal} \nand \nupdateDate <= @{activity('LkpLastModifyDateSrc').output.firstRow}",
+							"value": "select * from Student_src \nwhere updateDate > @{activity('LkpOldWaterMark').output.firstRow.waterMarkVal} \nand \nupdateDate <= @{activity('LkpLastModifyDateSrc').output.firstRow.NewWaterMarkVal}",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
@@ -144,7 +144,7 @@
 					"storedProcedureParameters": {
 						"LastModifiedtime": {
 							"value": {
-								"value": "@activity('LkpLastModifyDateSrc').output.NewWaterMarkVal",
+								"value": "@activity('LkpLastModifyDateSrc').output.firstRow.NewWaterMarkVal",
 								"type": "Expression"
 							},
 							"type": "DateTime"
