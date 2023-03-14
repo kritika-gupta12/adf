@@ -21,7 +21,7 @@
 		},
 		"ls_AzureDataLakeStorage_properties_typeProperties_url": {
 			"type": "string",
-			"defaultValue": "https://strgkgfree.dfs.core.windows.net/"
+			"defaultValue": "https://strgkg.dfs.core.windows.net/"
 		},
 		"ls_adf_properties_typeProperties_url": {
 			"type": "string",

@@ -13,6 +13,141 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_scd2_new_sql')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sql",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Emp_SID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Emp_No",
+						"type": "varchar"
+					},
+					{
+						"name": "Emp_Name",
+						"type": "varchar"
+					},
+					{
+						"name": "Department",
+						"type": "varchar"
+					},
+					{
+						"name": "City",
+						"type": "varchar"
+					},
+					{
+						"name": "LastUpdated_Date",
+						"type": "varchar"
+					},
+					{
+						"name": "is_Active",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "scd2"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_scd2_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_AzureDataLakeStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "scd type 2.csv",
+						"fileSystem": "scd-type-2"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "EmpNo",
+						"type": "String"
+					},
+					{
+						"name": "EmpName",
+						"type": "String"
+					},
+					{
+						"name": "Department",
+						"type": "String"
+					},
+					{
+						"name": "City",
+						"type": "String"
+					},
+					{
+						"name": "LastModified_Date",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_scd2_sql')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sql",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Surrogate_key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "DeptID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Name",
+						"type": "varchar"
+					},
+					{
+						"name": "IsActive",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Department"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_scd_type2_new_sql')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -492,7 +627,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pl_failed')]",
+			"name": "[concat(parameters('factoryName'), '/pl_emailAlert')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -544,7 +679,7 @@
 						},
 						"inputs": [
 							{
-								"referenceName": "ds_failed",
+								"referenceName": "ds_emailAlert",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -577,7 +712,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"url": "https://lg-emailalertkg.azurewebsites.net:443/api/emailAlert/triggers/manual/invoke?api-version=2022-05-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=UTP9ye1iO1b29OJ2eSL8Cw3fTomHt82WiLRJ8mTZaqk",
+							"url": "https://prod-01.centralindia.logic.azure.com:443/workflows/315ee8ff370a4fcfb5c9a4ca3bab2a45/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=L2S-MXxPBgmY9DhN4PFvp6OZlcPh21bQKDOifq-XG9M",
 							"method": "POST",
 							"headers": {
 								"Content-Type": "application/json"
@@ -598,7 +733,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pl_incremental_load')]",
+			"name": "[concat(parameters('factoryName'), '/pl_incremental_load_1')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -672,6 +807,39 @@
 								"parameters": {}
 							}
 						]
+					},
+					{
+						"name": "Web1",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://lg-emailalertkg.azurewebsites.net:443/api/emailAlert/triggers/manual/invoke?api-version=2022-05-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=UTP9ye1iO1b29OJ2eSL8Cw3fTomHt82WiLRJ8mTZaqk",
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/json"
+							},
+							"body": {
+								"Pipeline": "@{pipeline().Pipeline}",
+								"DataFactory": "@{pipeline().DataFactory}",
+								"ErrorMessage": "@{activity('Copy data1').Error.Message}",
+								"RunId": "@{pipeline().RunId}"
+							}
+						}
 					}
 				],
 				"policy": {
@@ -680,6 +848,247 @@
 				},
 				"annotations": [],
 				"lastPublishTime": "2023-01-09T06:48:41Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_incremental_load_2')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LkpOldWaterMark",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "SELECT waterMarkVal\nFROM [dbo].[WaterMark]\nWHERE tableName = '@{pipeline().parameters.srcTableName}'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "ds_incremental_load_watermark",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "LkpLastModifyDateSrc",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "SELECT MAX(@{pipeline().parameters.waterMarkCol}) AS NewwaterMarkVal\nFROM @{pipeline().parameters.srcTableName}",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "ds_incremental_load_st_src",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Copy data stg",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "LkpOldWaterMark",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "LkpLastModifyDateSrc",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "select * from @{pipeline().parameters.srcTableName}\nwhere @{pipeline().parameters.waterMarkCol} > \n'@{activity('LkpOldWaterMark').output.firstRow.waterMarkVal}' \nand @{pipeline().parameters.waterMarkCol} <= \n'@{activity('LkpLastModifyDateSrc').output.firstRow.NewwaterMarkVal}'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_incremental_load_st_src",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_incremental_load_csv_cink",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "usp_udate_waterMark",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Copy data stg",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[usp_write_watermark]",
+							"storedProcedureParameters": {
+								"LastModifiedtime": {
+									"value": {
+										"value": "@{activity('LkpLastModifyDateSrc').output.firstRow.NewwaterMarkVal}",
+										"type": "Expression"
+									},
+									"type": "DateTime"
+								},
+								"TableName": {
+									"value": {
+										"value": "@{pipeline().parameters.srcTableName}",
+										"type": "Expression"
+									},
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_sql",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Web1",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "usp_udate_waterMark",
+								"dependencyConditions": [
+									"Failed",
+									"Skipped"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://prod-01.centralindia.logic.azure.com:443/workflows/315ee8ff370a4fcfb5c9a4ca3bab2a45/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=L2S-MXxPBgmY9DhN4PFvp6OZlcPh21bQKDOifq-XG9M",
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/json"
+							},
+							"body": {
+								"value": "{\n    \"Pipeline\":\"@{pipeline().Pipeline}\",\n    \"DataFactory\":\"@{pipeline().DataFactory}\",\n    \"ErrorMessage\":\"@{activity('usp_udate_waterMark').output.Error.Message}\",\n    \"RunId\":\"@{pipeline().RunId}\"\n}",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"finalTableName": {
+						"type": "string",
+						"defaultValue": "Student_dest"
+					},
+					"srcTableName": {
+						"type": "string",
+						"defaultValue": "Student_src"
+					},
+					"waterMarkCol": {
+						"type": "string",
+						"defaultValue": "updateDate"
+					},
+					"stgTableName": {
+						"type": "string",
+						"defaultValue": "stgStudent"
+					},
+					"storedProcWaterMark": {
+						"type": "string",
+						"defaultValue": "usp_update_WaterMark"
+					}
+				},
+				"annotations": []
 			},
 			"dependsOn": []
 		},
@@ -1541,625 +1950,6 @@
 				}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/df_scd_type2')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "ds_scd2_dept",
-								"type": "DatasetReference"
-							},
-							"name": "souce1Deptcsv"
-						},
-						{
-							"dataset": {
-								"referenceName": "ds_scd2_sql",
-								"type": "DatasetReference"
-							},
-							"name": "source2Sql",
-							"description": "source2 = sinkSql"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "ds_scd2_sql",
-								"type": "DatasetReference"
-							},
-							"name": "sinkSql"
-						},
-						{
-							"dataset": {
-								"referenceName": "ds_scd2_sql",
-								"type": "DatasetReference"
-							},
-							"name": "sinkNewSql"
-						}
-					],
-					"transformations": [
-						{
-							"name": "derivedColumnDeptcsv",
-							"description": "Adding IsActive=1 column to the source csv"
-						},
-						{
-							"name": "select1Sql",
-							"description": "Renaming the columns for better understanding while Lookup"
-						},
-						{
-							"name": "lookup2",
-							"description": "Lookup on 'select1Sql' on DeptID=SQL_DeptID like inner join"
-						},
-						{
-							"name": "filter1",
-							"description": "Filtering the pre-existing same DeptID column in the sql table to put IsActive = 0"
-						},
-						{
-							"name": "alterRow1",
-							"description": "Updateing rows to sql table"
-						},
-						{
-							"name": "select1",
-							"description": "Selecting required columns"
-						},
-						{
-							"name": "derivedColumn1",
-							"description": "Adding IsActive = 0 column in table"
-						},
-						{
-							"name": "alterRow2"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          DeptId as integer,",
-						"          DeptName as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> souce1Deptcsv",
-						"source(output(",
-						"          Surrogate_key as integer,",
-						"          DeptID as integer,",
-						"          Name as string,",
-						"          IsActive as integer",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     format: 'table') ~> source2Sql",
-						"souce1Deptcsv derive(IsActive = 1) ~> derivedColumnDeptcsv",
-						"source2Sql select(mapColumn(",
-						"          SQL_Surrogate_key = Surrogate_key,",
-						"          SQL_DeptID = DeptID,",
-						"          SQL_Name = Name,",
-						"          SQL_IsActive = IsActive",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1Sql",
-						"souce1Deptcsv, select1Sql lookup(DeptId == SQL_DeptID,",
-						"     multiple: false,",
-						"     pickup: 'any',",
-						"     broadcast: 'auto')~> lookup2",
-						"lookup2 filter(!isNull(SQL_DeptID)) ~> filter1",
-						"filter1 alterRow(updateIf(1==1)) ~> alterRow1",
-						"alterRow1 select(mapColumn(",
-						"          SQL_Surrogate_key,",
-						"          SQL_DeptID,",
-						"          SQL_Name,",
-						"          SQL_IsActive",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 derive(SQL_IsActive = 0) ~> derivedColumn1",
-						"derivedColumn1 alterRow(updateIf(1==1)) ~> alterRow2",
-						"derivedColumnDeptcsv sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          Surrogate_key as integer,",
-						"          DeptID as integer,",
-						"          Name as string,",
-						"          IsActive as integer",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     saveOrder: 2,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          DeptID = DeptId,",
-						"          Name = DeptName,",
-						"          IsActive",
-						"     )) ~> sinkSql",
-						"alterRow2 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          Surrogate_key as integer,",
-						"          DeptID as integer,",
-						"          Name as string,",
-						"          IsActive as integer",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:false,",
-						"     updateable:true,",
-						"     upsertable:false,",
-						"     keys:['Surrogate_key'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     saveOrder: 1,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          Surrogate_key = SQL_Surrogate_key,",
-						"          DeptID = SQL_DeptID,",
-						"          Name = SQL_Name,",
-						"          IsActive = SQL_IsActive",
-						"     )) ~> sinkNewSql"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/df_scd_type2_hex')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "ds_scd2_source",
-								"type": "DatasetReference"
-							},
-							"name": "source1"
-						},
-						{
-							"dataset": {
-								"referenceName": "ds_scd_type2_new_sql",
-								"type": "DatasetReference"
-							},
-							"name": "source2"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "ds_scd_type2_new_sql",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						},
-						{
-							"dataset": {
-								"referenceName": "ds_scd_type2_new_sql",
-								"type": "DatasetReference"
-							},
-							"name": "sink2"
-						}
-					],
-					"transformations": [
-						{
-							"name": "derivedColumnSourceHash"
-						},
-						{
-							"name": "filter1"
-						},
-						{
-							"name": "derivedColumnSqlHash"
-						},
-						{
-							"name": "exists1"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "exists2"
-						},
-						{
-							"name": "derivedColumn2"
-						},
-						{
-							"name": "alterRow2"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          ID as short,",
-						"          NAME as string,",
-						"          CITY as string,",
-						"          START_DATE as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> source1",
-						"source(output(",
-						"          ID as integer,",
-						"          NAME as string,",
-						"          CITY as string,",
-						"          Start_date as date,",
-						"          End_date as date,",
-						"          isActive as integer",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     format: 'table') ~> source2",
-						"source1 derive(SourceHash = md5(ID,NAME,CITY)) ~> derivedColumnSourceHash",
-						"source2 filter(isActive ==1) ~> filter1",
-						"filter1 derive(SqlHash = md5(ID,NAME,CITY)) ~> derivedColumnSqlHash",
-						"derivedColumnSourceHash, derivedColumnSqlHash exists(SourceHash == SqlHash,",
-						"     negate:true,",
-						"     broadcast: 'auto')~> exists1",
-						"exists1 derive(End_date = 'NULL',",
-						"          isActive = 1) ~> derivedColumn1",
-						"derivedColumn1 alterRow(upsertIf(true())) ~> alterRow1",
-						"derivedColumnSqlHash, derivedColumnSourceHash exists(source2@ID == source1@ID",
-						"     && source2@NAME == source1@NAME,",
-						"     negate:false,",
-						"     broadcast: 'auto')~> exists2",
-						"exists2 derive(End_date = toDate(currentUTC()),",
-						"          isActive = 0) ~> derivedColumn2",
-						"derivedColumn2 alterRow(updateIf(true())) ~> alterRow2",
-						"alterRow1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ID as integer,",
-						"          NAME as string,",
-						"          CITY as string,",
-						"          Start_date as date,",
-						"          End_date as date,",
-						"          isActive as integer",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:false,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ID','NAME','CITY'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1",
-						"alterRow2 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ID as integer,",
-						"          NAME as string,",
-						"          CITY as string,",
-						"          Start_date as date,",
-						"          End_date as date,",
-						"          isActive as integer",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:false,",
-						"     updateable:true,",
-						"     upsertable:false,",
-						"     keys:['ID','NAME'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink2"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_scd_type2_new_sql')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/df_scd_type2_trial')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "ds_scd2_source",
-								"type": "DatasetReference"
-							},
-							"name": "source1csv"
-						},
-						{
-							"dataset": {
-								"referenceName": "ds_scd2_new_sql",
-								"type": "DatasetReference"
-							},
-							"name": "source2sql"
-						},
-						{
-							"dataset": {
-								"referenceName": "ds_scd2_new_sql",
-								"type": "DatasetReference"
-							},
-							"name": "source3MaxKey"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "ds_scd2_new_sql",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						},
-						{
-							"dataset": {
-								"referenceName": "ds_scd2_new_sql",
-								"type": "DatasetReference"
-							},
-							"name": "sink2"
-						},
-						{
-							"dataset": {
-								"referenceName": "ds_scd2_new_sql",
-								"type": "DatasetReference"
-							},
-							"name": "sink3"
-						}
-					],
-					"transformations": [
-						{
-							"name": "select1Sql"
-						},
-						{
-							"name": "join1"
-						},
-						{
-							"name": "lookup1"
-						},
-						{
-							"name": "select2Max"
-						},
-						{
-							"name": "split1"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "derivedColumn2"
-						},
-						{
-							"name": "derivedColumn3"
-						},
-						{
-							"name": "filter1"
-						},
-						{
-							"name": "alterRow1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          EmpNo as string,",
-						"          EmpName as string,",
-						"          Department as string,",
-						"          City as string,",
-						"          LastModified_Date as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> source1csv",
-						"source(output(",
-						"          Emp_SID as integer,",
-						"          Emp_No as string,",
-						"          Emp_Name as string,",
-						"          Department as string,",
-						"          City as string,",
-						"          LastUpdated_Date as string,",
-						"          is_Active as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     format: 'table') ~> source2sql",
-						"source(output(",
-						"          Emp_SID as integer,",
-						"          Emp_No as string,",
-						"          Emp_Name as string,",
-						"          Department as string,",
-						"          City as string,",
-						"          LastUpdated_Date as string,",
-						"          is_Active as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: 'SELECT MAX([Emp_SID]) as MaxKey FROM scd2',",
-						"     format: 'query') ~> source3MaxKey",
-						"source2sql select(mapColumn(",
-						"          sqlEmp_SID = Emp_SID,",
-						"          sqlEmp_No = Emp_No,",
-						"          sqlEmp_Name = Emp_Name,",
-						"          sqlDepartment = Department,",
-						"          sqlCity = City,",
-						"          sqlLastUpdated_Date = LastUpdated_Date,",
-						"          sqlis_Active = is_Active",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1Sql",
-						"source1csv, select2Max join(1 == 1,",
-						"     joinType:'cross',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> join1",
-						"join1, select1Sql lookup(EmpNo == sqlEmp_No,",
-						"     multiple: false,",
-						"     pickup: 'any',",
-						"     broadcast: 'auto')~> lookup1",
-						"source3MaxKey select(mapColumn(",
-						"          maxEmp_SID = Emp_SID,",
-						"          maxEmp_No = Emp_No,",
-						"          maxEmp_Name = Emp_Name,",
-						"          maxDepartment = Department,",
-						"          maxCity = City,",
-						"          maxLastUpdated_Date = LastUpdated_Date,",
-						"          maxis_Active = is_Active",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select2Max",
-						"lookup1 split(isNull(sqlEmp_No),",
-						"     disjoint: false) ~> split1@(New, Old)",
-						"split1@New derive(isActive = 1) ~> derivedColumn1",
-						"split1@Old derive(isActive = 1) ~> derivedColumn2",
-						"split1@Old derive(isActivezero = 0) ~> derivedColumn3",
-						"derivedColumn3 filter(sqlEmp_SID <= maxEmp_SID) ~> filter1",
-						"filter1 alterRow(updateIf(sqlEmp_SID<=maxEmp_SID)) ~> alterRow1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          Emp_SID as integer,",
-						"          Emp_No as string,",
-						"          Emp_Name as string,",
-						"          Department as string,",
-						"          City as string,",
-						"          LastUpdated_Date as string,",
-						"          is_Active as string",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     saveOrder: 1,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          Emp_No = EmpNo,",
-						"          Emp_Name = EmpName,",
-						"          Department,",
-						"          City,",
-						"          LastUpdated_Date = LastModified_Date,",
-						"          is_Active = isActive",
-						"     )) ~> sink1",
-						"derivedColumn2 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          Emp_SID as integer,",
-						"          Emp_No as string,",
-						"          Emp_Name as string,",
-						"          Department as string,",
-						"          City as string,",
-						"          LastUpdated_Date as string,",
-						"          is_Active as string",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     saveOrder: 3,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          Emp_No = EmpNo,",
-						"          Emp_Name = EmpName,",
-						"          Department,",
-						"          City,",
-						"          LastUpdated_Date = LastModified_Date,",
-						"          is_Active = isActive",
-						"     )) ~> sink2",
-						"alterRow1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          Emp_SID as integer,",
-						"          Emp_No as string,",
-						"          Emp_Name as string,",
-						"          Department as string,",
-						"          City as string,",
-						"          LastUpdated_Date as string,",
-						"          is_Active as string",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:false,",
-						"     updateable:true,",
-						"     upsertable:false,",
-						"     keys:['Emp_SID'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     saveOrder: 2,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          Emp_No = EmpNo,",
-						"          Emp_Name = EmpName,",
-						"          Department,",
-						"          City,",
-						"          LastUpdated_Date = LastModified_Date,",
-						"          is_Active = isActivezero,",
-						"          Emp_SID = sqlEmp_SID",
-						"     )) ~> sink3"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_cases_deaths_transformation')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "dataflow1",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "df_cases_deaths_transformation",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"source1casesdeaths": {},
-									"source2countrycode": {},
-									"sink1": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-15T18:28:53Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/df_cases_deaths_transformation')]"
-			]
 		}
 	]
 }
