@@ -17,6 +17,10 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "SELECT waterMarkVal\nFROM [dbo].[WaterMark]\nWHERE tableName = '@{pipeline().parameters.srcTableName}'",
+							"type": "Expression"
+						},
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
@@ -41,7 +45,10 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "SELECT MAX(updateDate) AS NewWaterMarkVal\nFROM Student_src",
+						"sqlReaderQuery": {
+							"value": "SELECT MAX(@{pipeline().parameters.waterMarkCol}) AS NewwaterMarkVal\nFROM @{pipeline().parameters.srcTableName}",
+							"type": "Expression"
+						},
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
@@ -80,7 +87,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "select * from Student_src \nwhere updateDate > @{activity('LkpOldWaterMark').output.firstRow.waterMarkVal} \nand \nupdateDate <= @{activity('LkpLastModifyDateSrc').output.firstRow.NewWaterMarkVal}",
+							"value": "select * from @{pipeline().parameters.srcTableName}\nwhere @{pipeline().parameters.waterMarkCol} > \n'@{activity('LkpOldWaterMark').output.firstRow.waterMarkVal}' \nand @{pipeline().parameters.waterMarkCol} <= \n'@{activity('LkpLastModifyDateSrc').output.firstRow.NewwaterMarkVal}'",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
@@ -140,18 +147,18 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"storedProcedureName": "[dbo].[usp_update_watermark]",
+					"storedProcedureName": "[dbo].[usp_write_watermark]",
 					"storedProcedureParameters": {
 						"LastModifiedtime": {
 							"value": {
-								"value": "@activity('LkpLastModifyDateSrc').output.firstRow.NewWaterMarkVal",
+								"value": "@{activity('LkpLastModifyDateSrc').output.firstRow.NewwaterMarkVal}",
 								"type": "Expression"
 							},
 							"type": "DateTime"
 						},
 						"TableName": {
 							"value": {
-								"value": "@activity('LkpOldWaterMark').output.tableName",
+								"value": "@{pipeline().parameters.srcTableName}",
 								"type": "Expression"
 							},
 							"type": "String"
@@ -164,6 +171,28 @@
 				}
 			}
 		],
+		"parameters": {
+			"finalTableName": {
+				"type": "string",
+				"defaultValue": "Student_dest"
+			},
+			"srcTableName": {
+				"type": "string",
+				"defaultValue": "Student_src"
+			},
+			"waterMarkCol": {
+				"type": "string",
+				"defaultValue": "updateDate"
+			},
+			"stgTableName": {
+				"type": "string",
+				"defaultValue": "stgStudent"
+			},
+			"storedProcWaterMark": {
+				"type": "string",
+				"defaultValue": "usp_update_WaterMark"
+			}
+		},
 		"annotations": []
 	}
 }
