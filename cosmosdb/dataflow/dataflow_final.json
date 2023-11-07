@@ -1,0 +1,178 @@
+{
+	"name": "dataflow_final",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "raw_CosmosDb",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "raw_vehicle_CosmosDb",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "raw_customer_CosmosDb",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				},
+				{
+					"dataset": {
+						"referenceName": "raw_country_CosmosDb",
+						"type": "DatasetReference"
+					},
+					"name": "sink3"
+				}
+			],
+			"transformations": [
+				{
+					"name": "selectforVehicle"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "selectforCustomer"
+				},
+				{
+					"name": "selectforCountry"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "select2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          LastName as string,",
+				"          KMRun as string,",
+				"          Country as string,",
+				"          PinCode as string,",
+				"          CountryMobileCode as short,",
+				"          Address as string,",
+				"          {_attachments} as string,",
+				"          FirstName as string,",
+				"          Mobile as string,",
+				"          Model as string,",
+				"          RentedDate as string,",
+				"          CustomerRating as string,",
+				"          id as string,",
+				"          Currency as string,",
+				"          {_etag} as string,",
+				"          {_rid} as string,",
+				"          DocumentsSubmitted as string,",
+				"          Brand as string,",
+				"          BillAmount as string,",
+				"          {_self} as string,",
+				"          VehicleType as string,",
+				"          RegisteredYear as string,",
+				"          {_ts} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     query: 'SELECT * FROM c',",
+				"     format: 'documentQuery',",
+				"     systemColumns: false,",
+				"     partitionBy('hash', 1)) ~> source1",
+				"source1 select(mapColumn(",
+				"          custid = id,",
+				"          VehicleType,",
+				"          Brand,",
+				"          Model,",
+				"          KMRun,",
+				"          RentedDate,",
+				"          RegisteredYear",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectforVehicle",
+				"selectforVehicle derive(vehid = concat(left(VehicleType,1),'_',upper(left(Brand,2)))) ~> derivedColumn1",
+				"derivedColumn1 select(mapColumn(",
+				"          vehid,",
+				"          custid,",
+				"          VehicleType,",
+				"          Brand,",
+				"          Model,",
+				"          KMRun,",
+				"          RentedDate,",
+				"          RegisteredYear",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"source1 select(mapColumn(",
+				"          custid = id,",
+				"          FirstName,",
+				"          LastName,",
+				"          Address,",
+				"          PinCode,",
+				"          Mobile,",
+				"          CustomerRating,",
+				"          DocumentsSubmitted,",
+				"          BillAmount",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectforCustomer",
+				"source1 select(mapColumn(",
+				"          custid = id,",
+				"          Country,",
+				"          CountryMobileCode,",
+				"          Currency",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectforCountry",
+				"selectforCountry derive(countryid = upper(left(Country,2))) ~> derivedColumn2",
+				"derivedColumn2 select(mapColumn(",
+				"          countryid,",
+				"          custid,",
+				"          Country,",
+				"          CountryMobileCode,",
+				"          Currency",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'document',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1",
+				"selectforCustomer sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'document',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink2",
+				"select2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'document',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink3"
+			]
+		}
+	}
+}

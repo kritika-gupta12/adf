@@ -1,0 +1,16 @@
+{
+	"name": "raw_country_CosmosDb",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "CosmosDb",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "CosmosDbSqlApiCollection",
+		"schema": {},
+		"typeProperties": {
+			"collectionName": "country"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

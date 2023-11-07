@@ -1,0 +1,16 @@
+{
+	"name": "FactRental_CosmosDb",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "CosmosDb",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "CosmosDbSqlApiCollection",
+		"schema": {},
+		"typeProperties": {
+			"collectionName": "FactRental"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

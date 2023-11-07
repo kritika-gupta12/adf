@@ -1,0 +1,48 @@
+{
+	"name": "raw_Json",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "raw",
+				"fileSystem": "car"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"Name": {
+					"type": "string"
+				},
+				"Address": {
+					"type": "string"
+				},
+				"Country": {
+					"type": "string"
+				},
+				"Phone": {
+					"type": "string"
+				},
+				"VehType": {
+					"type": "string"
+				},
+				"VehModel": {
+					"type": "string"
+				},
+				"Gender": {
+					"type": "string"
+				},
+				"VehBrand": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

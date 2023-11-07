@@ -1,0 +1,102 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "raw_Json",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "raw_vehicle_CosmosDb",
+						"type": "DatasetReference"
+					},
+					"name": "sinkVehicle"
+				},
+				{
+					"dataset": {
+						"referenceName": "raw_customer_CosmosDb",
+						"type": "DatasetReference"
+					},
+					"name": "sinkCustomer"
+				}
+			],
+			"transformations": [
+				{
+					"name": "selectforCustomer"
+				},
+				{
+					"name": "selectforVehicle"
+				},
+				{
+					"name": "surrogateKey1"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Name as string,",
+				"          Address as string,",
+				"          Country as string,",
+				"          Phone as string,",
+				"          VehType as string,",
+				"          VehModel as string,",
+				"          Gender as string,",
+				"          VehBrand as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'arrayOfDocuments') ~> source1",
+				"derivedColumn1 select(mapColumn(",
+				"          custId,",
+				"          Name,",
+				"          Address,",
+				"          Country,",
+				"          Phone,",
+				"          Gender",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectforCustomer",
+				"source1 select(mapColumn(",
+				"          VehType,",
+				"          VehModel,",
+				"          VehBrand",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectforVehicle",
+				"source1 keyGenerate(output(custId as long),",
+				"     startAt: 101L,",
+				"     stepValue: 1L) ~> surrogateKey1",
+				"surrogateKey1 derive(custId = toString(custId)) ~> derivedColumn1",
+				"selectforVehicle sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'document',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinkVehicle",
+				"selectforCustomer sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'document',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinkCustomer"
+			]
+		}
+	}
+}

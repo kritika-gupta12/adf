@@ -1,0 +1,24 @@
+{
+	"name": "factrental_trigger",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "FactRental",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/car/blobs/factrental",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/ce8d4912-e403-4624-ad55-e0e4fb8df36c/resourceGroups/RG-kritika/providers/Microsoft.Storage/storageAccounts/adlskg2",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}
