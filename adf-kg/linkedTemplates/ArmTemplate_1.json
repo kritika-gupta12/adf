@@ -1,0 +1,511 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-kg"
+		},
+		"dimcountry_trigger_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/ce8d4912-e403-4624-ad55-e0e4fb8df36c/resourceGroups/RG-kritika/providers/Microsoft.Storage/storageAccounts/adlskg2"
+		},
+		"dimcustomer_trigger_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/ce8d4912-e403-4624-ad55-e0e4fb8df36c/resourceGroups/RG-kritika/providers/Microsoft.Storage/storageAccounts/adlskg2"
+		},
+		"dimvehicle_trigger_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/ce8d4912-e403-4624-ad55-e0e4fb8df36c/resourceGroups/RG-kritika/providers/Microsoft.Storage/storageAccounts/adlskg2"
+		},
+		"factrental_trigger_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/ce8d4912-e403-4624-ad55-e0e4fb8df36c/resourceGroups/RG-kritika/providers/Microsoft.Storage/storageAccounts/adlskg2"
+		},
+		"trigger1_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/ce8d4912-e403-4624-ad55-e0e4fb8df36c/resourceGroups/RG-kritika/providers/Microsoft.Storage/storageAccounts/adlskg2"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "raw_Json",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "raw_vehicle_CosmosDb",
+								"type": "DatasetReference"
+							},
+							"name": "sinkVehicle"
+						},
+						{
+							"dataset": {
+								"referenceName": "raw_customer_CosmosDb",
+								"type": "DatasetReference"
+							},
+							"name": "sinkCustomer"
+						}
+					],
+					"transformations": [
+						{
+							"name": "selectforCustomer"
+						},
+						{
+							"name": "selectforVehicle"
+						},
+						{
+							"name": "surrogateKey1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Name as string,",
+						"          Address as string,",
+						"          Country as string,",
+						"          Phone as string,",
+						"          VehType as string,",
+						"          VehModel as string,",
+						"          Gender as string,",
+						"          VehBrand as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'arrayOfDocuments') ~> source1",
+						"derivedColumn1 select(mapColumn(",
+						"          custId,",
+						"          Name,",
+						"          Address,",
+						"          Country,",
+						"          Phone,",
+						"          Gender",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectforCustomer",
+						"source1 select(mapColumn(",
+						"          VehType,",
+						"          VehModel,",
+						"          VehBrand",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectforVehicle",
+						"source1 keyGenerate(output(custId as long),",
+						"     startAt: 101L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"surrogateKey1 derive(custId = toString(custId)) ~> derivedColumn1",
+						"selectforVehicle sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'document',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinkVehicle",
+						"selectforCustomer sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'document',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinkCustomer"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_final')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "raw_CosmosDb",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "raw_vehicle_CosmosDb",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						},
+						{
+							"dataset": {
+								"referenceName": "raw_customer_CosmosDb",
+								"type": "DatasetReference"
+							},
+							"name": "sink2"
+						},
+						{
+							"dataset": {
+								"referenceName": "raw_country_CosmosDb",
+								"type": "DatasetReference"
+							},
+							"name": "sink3"
+						}
+					],
+					"transformations": [
+						{
+							"name": "selectforVehicle"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "selectforCustomer"
+						},
+						{
+							"name": "selectforCountry"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "select2"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          LastName as string,",
+						"          KMRun as string,",
+						"          Country as string,",
+						"          PinCode as string,",
+						"          CountryMobileCode as short,",
+						"          Address as string,",
+						"          {_attachments} as string,",
+						"          FirstName as string,",
+						"          Mobile as string,",
+						"          Model as string,",
+						"          RentedDate as string,",
+						"          CustomerRating as string,",
+						"          id as string,",
+						"          Currency as string,",
+						"          {_etag} as string,",
+						"          {_rid} as string,",
+						"          DocumentsSubmitted as string,",
+						"          Brand as string,",
+						"          BillAmount as string,",
+						"          {_self} as string,",
+						"          VehicleType as string,",
+						"          RegisteredYear as string,",
+						"          {_ts} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     query: 'SELECT * FROM c',",
+						"     format: 'documentQuery',",
+						"     systemColumns: false,",
+						"     partitionBy('hash', 1)) ~> source1",
+						"source1 select(mapColumn(",
+						"          custid = id,",
+						"          VehicleType,",
+						"          Brand,",
+						"          Model,",
+						"          KMRun,",
+						"          RentedDate,",
+						"          RegisteredYear",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectforVehicle",
+						"selectforVehicle derive(vehid = concat(left(VehicleType,1),'_',upper(left(Brand,2)))) ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          vehid,",
+						"          custid,",
+						"          VehicleType,",
+						"          Brand,",
+						"          Model,",
+						"          KMRun,",
+						"          RentedDate,",
+						"          RegisteredYear",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"source1 select(mapColumn(",
+						"          custid = id,",
+						"          FirstName,",
+						"          LastName,",
+						"          Address,",
+						"          PinCode,",
+						"          Mobile,",
+						"          CustomerRating,",
+						"          DocumentsSubmitted,",
+						"          BillAmount",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectforCustomer",
+						"source1 select(mapColumn(",
+						"          custid = id,",
+						"          Country,",
+						"          CountryMobileCode,",
+						"          Currency",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectforCountry",
+						"selectforCountry derive(countryid = upper(left(Country,2))) ~> derivedColumn2",
+						"derivedColumn2 select(mapColumn(",
+						"          countryid,",
+						"          custid,",
+						"          Country,",
+						"          CountryMobileCode,",
+						"          Currency",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select2",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'document',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1",
+						"selectforCustomer sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'document',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink2",
+						"select2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'document',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink3"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/raw_adls_to_containers_cosmos')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow_final",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {},
+									"sink2": {},
+									"sink3": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-11-03T12:10:08Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow_final')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dimcountry_trigger')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "DimCountry",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/car/blobs/dimcountry",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('dimcountry_trigger_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dimcustomer_trigger')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "DimCustomer",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/car/blobs/dimcustomer",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('dimcustomer_trigger_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dimvehicle_trigger')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "DimVehicle",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/car/blobs/dimvehicle",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('dimvehicle_trigger_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/factrental_trigger')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "FactRental",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/car/blobs/factrental",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('factrental_trigger_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/trigger1')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "raw_adls_to_cosmos",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/car/blobs/raw",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('trigger1_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

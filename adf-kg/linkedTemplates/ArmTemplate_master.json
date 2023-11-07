@@ -1,0 +1,118 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-kg"
+		},
+		"ADLS_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ADLS'"
+		},
+		"CosmosDb_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'CosmosDb'"
+		},
+		"ADLS_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://adlskg2.dfs.core.windows.net/"
+		},
+		"dimcountry_trigger_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/ce8d4912-e403-4624-ad55-e0e4fb8df36c/resourceGroups/RG-kritika/providers/Microsoft.Storage/storageAccounts/adlskg2"
+		},
+		"dimcustomer_trigger_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/ce8d4912-e403-4624-ad55-e0e4fb8df36c/resourceGroups/RG-kritika/providers/Microsoft.Storage/storageAccounts/adlskg2"
+		},
+		"dimvehicle_trigger_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/ce8d4912-e403-4624-ad55-e0e4fb8df36c/resourceGroups/RG-kritika/providers/Microsoft.Storage/storageAccounts/adlskg2"
+		},
+		"factrental_trigger_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/ce8d4912-e403-4624-ad55-e0e4fb8df36c/resourceGroups/RG-kritika/providers/Microsoft.Storage/storageAccounts/adlskg2"
+		},
+		"trigger1_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/ce8d4912-e403-4624-ad55-e0e4fb8df36c/resourceGroups/RG-kritika/providers/Microsoft.Storage/storageAccounts/adlskg2"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "adf-kg_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"ADLS_accountKey": {
+						"value": "[parameters('ADLS_accountKey')]"
+					},
+					"CosmosDb_connectionString": {
+						"value": "[parameters('CosmosDb_connectionString')]"
+					},
+					"ADLS_properties_typeProperties_url": {
+						"value": "[parameters('ADLS_properties_typeProperties_url')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "adf-kg_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"dimcountry_trigger_properties_typeProperties_scope": {
+						"value": "[parameters('dimcountry_trigger_properties_typeProperties_scope')]"
+					},
+					"dimcustomer_trigger_properties_typeProperties_scope": {
+						"value": "[parameters('dimcustomer_trigger_properties_typeProperties_scope')]"
+					},
+					"dimvehicle_trigger_properties_typeProperties_scope": {
+						"value": "[parameters('dimvehicle_trigger_properties_typeProperties_scope')]"
+					},
+					"factrental_trigger_properties_typeProperties_scope": {
+						"value": "[parameters('factrental_trigger_properties_typeProperties_scope')]"
+					},
+					"trigger1_properties_typeProperties_scope": {
+						"value": "[parameters('trigger1_properties_typeProperties_scope')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-kg_ArmTemplate_0')]"
+			]
+		}
+	]
+}

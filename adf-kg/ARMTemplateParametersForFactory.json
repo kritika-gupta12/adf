@@ -1,0 +1,33 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-kg"
+		},
+		"ADLS_accountKey": {
+			"value": ""
+		},
+		"CosmosDb_connectionString": {
+			"value": ""
+		},
+		"ADLS_properties_typeProperties_url": {
+			"value": "https://adlskg2.dfs.core.windows.net/"
+		},
+		"dimcountry_trigger_properties_typeProperties_scope": {
+			"value": "/subscriptions/ce8d4912-e403-4624-ad55-e0e4fb8df36c/resourceGroups/RG-kritika/providers/Microsoft.Storage/storageAccounts/adlskg2"
+		},
+		"dimcustomer_trigger_properties_typeProperties_scope": {
+			"value": "/subscriptions/ce8d4912-e403-4624-ad55-e0e4fb8df36c/resourceGroups/RG-kritika/providers/Microsoft.Storage/storageAccounts/adlskg2"
+		},
+		"dimvehicle_trigger_properties_typeProperties_scope": {
+			"value": "/subscriptions/ce8d4912-e403-4624-ad55-e0e4fb8df36c/resourceGroups/RG-kritika/providers/Microsoft.Storage/storageAccounts/adlskg2"
+		},
+		"factrental_trigger_properties_typeProperties_scope": {
+			"value": "/subscriptions/ce8d4912-e403-4624-ad55-e0e4fb8df36c/resourceGroups/RG-kritika/providers/Microsoft.Storage/storageAccounts/adlskg2"
+		},
+		"trigger1_properties_typeProperties_scope": {
+			"value": "/subscriptions/ce8d4912-e403-4624-ad55-e0e4fb8df36c/resourceGroups/RG-kritika/providers/Microsoft.Storage/storageAccounts/adlskg2"
+		}
+	}
+}
